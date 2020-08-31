@@ -15,12 +15,14 @@
     "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
     "lint": "npm run lint:eslint && npm run lint:prettier",
     "format": "npm run format:eslint && npm run format:prettier",
+    "test": "jest",
     "build": "rimraf dist && rollup -c rollup.config.js && tsc --declaration --outDir dist --emitDeclarationOnly",
     "prepublish": "build"
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
     "@rollup/plugin-typescript": "^5.0.2",
+    "@types/jest": "^26.0.10",
     "@typescript-eslint/eslint-plugin": "^2.20.0",
     "@typescript-eslint/parser": "^2.20.0",
     "concurrently": "^5.1.0",
@@ -28,11 +30,13 @@
     "eslint": "^6.1.0",
     "eslint-config-prettier": "^6.11.0",
     "husky": "^1.0.0",
+    "jest": "^26.4.2",
     "lint-staged": "^10.0.0",
     "prettier": "^2.0.4",
     "rimraf": "^2.6.3",
     "rollup": "^2.26.8",
     "rollup-plugin-terser": "^7.0.1",
+    "ts-jest": "^26.3.0",
     "tslib": "^1.11.0",
     "typescript": "~3.8.2"
   },

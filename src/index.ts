@@ -119,7 +119,7 @@ export const observable = (object: any): Observable => {
     },
     $cache(propertyKey: PropertyKey, callback: Function): unknown {
       const key = propertyKey.toString();
-      if ($cached[key]) return $cached[key];
+      if ($cached.hasOwnProperty(key)) return $cached[key];
       const deps = this.$track(() => {
         $cached[key] = callback();
       });
