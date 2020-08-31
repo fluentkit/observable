@@ -9,6 +9,7 @@
   "types": "dist/index.d.ts",
   "unpkg": "dist/index.js",
   "jsdelivr": "dist/index.js",
+  "files": ["dist"],
   "dependencies": {},
   "scripts": {
     "lint:eslint": "eslint --ext .ts . --ignore-path .gitignore",
