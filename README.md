@@ -14,7 +14,7 @@ To create a reactive object, import the observable function and provide your ini
 ```javascript
 import {observable} from '@fluentkit/observable';
 
-const reactiveObj = observe({
+const reactiveObj = observable({
     foo: 'bar',
     bazzer: {
         one: 'two',
