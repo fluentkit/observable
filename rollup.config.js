@@ -16,6 +16,12 @@ export default {
       format: 'es',
       sourcemap: true,
     },
+    {
+      file: pkg.unpkg,
+      name: 'FluentKit',
+      format: 'umd',
+      sourcemap: true,
+    },
   ],
   plugins: [typescript(), buble(), terser()],
 };
