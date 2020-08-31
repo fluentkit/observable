@@ -30,56 +30,68 @@ const _isObservable = (value: unknown): boolean => {
 };
 
 export const observable = (object: any): Observable => {
-  const $watchers: Record<string, Function[]> = {};
   const $tracking: PropertyKey[][] = [];
   const $cached: Record<PropertyKey, unknown> = {};
 
-  const $notificationQueue: {
+  const $watcherQueue: {
+    stack: Record<string, Function[]>;
+    push: (propertyKey: string, callback: Function) => void;
     isQueued: boolean;
-    _queue: string[];
+    _queue: Set<string>;
     queue: (propertyKey: PropertyKey) => void;
     flush: () => void;
   } = {
+    stack: {},
+    push(propertyKey: string, callback: Function): void {
+      this.stack[propertyKey] = this.stack[propertyKey] || [];
+      this.stack[propertyKey].push(callback);
+    },
     isQueued: false,
-    _queue: [],
+    _queue: new Set(),
     queue(propertyKey: PropertyKey): void {
       if (!this.isQueued) {
         nextTick(() => this.flush());
         this.isQueued = true;
       }
-      this._queue.push(propertyKey.toString());
+      this._queue.add(propertyKey.toString());
     },
     flush(): void {
-      const queue = [...new Set(this._queue)];
-      this._queue = [];
+      const queue = [...this._queue.values()];
+      this._queue.clear();
       this.isQueued = false;
       while (queue.length) {
         const propertyKey = queue.shift();
         if (!propertyKey) return;
 
-        $watchers[propertyKey] = ($watchers[propertyKey] || []).filter(
-          watcher => {
-            return watcher(propertyKey === '*' ? null : propertyKey) !== false;
-          }
+        this.stack[propertyKey] = (this.stack[propertyKey] || []).filter(
+          watcher => watcher(propertyKey === '*' ? null : propertyKey) !== false
         );
 
         if (propertyKey !== '*') {
-          $watchers['*'] = ($watchers['*'] || []).filter(watcher => {
-            return watcher(propertyKey) !== false;
-          });
+          this.stack['*'] = (this.stack['*'] || []).filter(
+            watcher => watcher(propertyKey) !== false
+          );
         }
       }
     },
   };
 
-  const handler: Observable & ProxyHandler<Observable> = {
+  const handler: Observable &
+    ProxyHandler<Observable> & { _cacheMap: Record<string, string[]> } = {
+    _cacheMap: {},
     $isObservable: true,
     get $isSettled() {
-      return $notificationQueue._queue.length === 0;
+      return $watcherQueue._queue.size === 0;
     },
     $nextTick: nextTick,
     $notify(propertyKey: PropertyKey): void {
-      $notificationQueue.queue(propertyKey);
+      $watcherQueue.queue(propertyKey);
+      Object.entries(this._cacheMap).forEach(([key, dependencies]) => {
+        if (dependencies.includes(propertyKey.toString())) {
+          delete $cached[key];
+          this.$notify(key);
+        }
+      });
     },
     $watch(
       propertyKey: PropertyKey | PropertyKey[] | Function,
@@ -90,16 +102,12 @@ export const observable = (object: any): Observable => {
         propertyKey = '*';
       }
       if (Array.isArray(propertyKey)) {
-        $watchers['*'] = $watchers['*'] || [];
-        $watchers['*'].push((property: PropertyKey) => {
-          if ((propertyKey as PropertyKey[]).includes(property)) {
+        $watcherQueue.push('*', (property: PropertyKey) => {
+          if ((propertyKey as PropertyKey[]).includes(property))
             return (callback as Function)(property);
-          }
         });
       } else {
-        propertyKey = propertyKey.toString();
-        $watchers[propertyKey] = $watchers[propertyKey] || [];
-        $watchers[propertyKey].push(callback as Function);
+        $watcherQueue.push(propertyKey.toString(), callback as Function);
       }
     },
     $track(callback: Function): PropertyKey[] {
@@ -120,13 +128,8 @@ export const observable = (object: any): Observable => {
     $cache(propertyKey: PropertyKey, callback: Function): unknown {
       const key = propertyKey.toString();
       if ($cached.hasOwnProperty(key)) return $cached[key];
-      const deps = this.$track(() => {
+      this._cacheMap[key] = this.$track(() => {
         $cached[key] = callback();
-      });
-      this.$watch(deps, () => {
-        delete $cached[key];
-        this.$notify(propertyKey);
-        return false;
       });
       return $cached[key];
     },

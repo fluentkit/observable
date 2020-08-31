@@ -1,6 +1,6 @@
 # @fluentkit/observable
 
-A lightweight 2KB (minified), zero dependency* object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.
+A lightweight 2.5KB (minified), 1KB gzipped, zero dependency* object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.
 
 Watchers and effects are batched, de-duped and called asynchronously using promises for performance.
 

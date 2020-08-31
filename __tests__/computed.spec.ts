@@ -1,7 +1,7 @@
 import { observable } from '../src';
 
 describe('reactivity/computed', () => {
-  it('should return updated value', async () => {
+  it('should return updated value', () => {
     const obj = observable({
       get computed(): number {
         return this.foo;
@@ -9,12 +9,10 @@ describe('reactivity/computed', () => {
     });
     expect(obj.computed).toBe(undefined);
     obj.foo = 1;
-    expect(obj.computed).toBe(undefined);
-    await obj.$nextTick();
     expect(obj.computed).toBe(1);
   });
 
-  it('should compute lazily', async () => {
+  it('should compute lazily', () => {
     const obj = observable({});
     const getter = jest.fn(() => obj.foo);
     Object.defineProperty(obj, 'computed', {
@@ -38,8 +36,6 @@ describe('reactivity/computed', () => {
     expect(getter).toHaveBeenCalledTimes(1);
 
     // now it should compute
-    expect(obj.computed).toBe(undefined);
-    await obj.$nextTick();
     expect(obj.computed).toBe(1);
     expect(getter).toHaveBeenCalledTimes(2);
 
