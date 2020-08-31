@@ -21,6 +21,14 @@ export const nextTick = (callback?: () => void): Promise<void> => {
   return callback ? tick.then(callback) : tick;
 };
 
+const _isObservable = (value: unknown): boolean => {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    (value as Observable).$isObservable
+  );
+};
+
 export const observable = (object: any): Observable => {
   const $watchers: Record<string, Function[]> = {};
   const $tracking: PropertyKey[][] = [];
@@ -62,14 +70,6 @@ export const observable = (object: any): Observable => {
         }
       }
     },
-  };
-
-  const _isObservable = (value: unknown): boolean => {
-    return (
-      value !== null &&
-      typeof value === 'object' &&
-      (value as Observable).$isObservable
-    );
   };
 
   const handler: Observable & ProxyHandler<Observable> = {
