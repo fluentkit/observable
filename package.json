@@ -1,6 +1,6 @@
 {
   "name": "@fluentkit/observable",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A lightweight object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.",
   "author": "FluentKit",
   "license": "MIT",
@@ -9,7 +9,9 @@
   "types": "dist/index.d.ts",
   "unpkg": "dist/index.js",
   "jsdelivr": "dist/index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "dependencies": {},
   "scripts": {
     "lint:eslint": "eslint --ext .ts . --ignore-path .gitignore",
