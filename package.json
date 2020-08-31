@@ -13,11 +13,11 @@
     "format:eslint": "eslint --ext .ts . --fix --ignore-path .gitignore",
     "lint:prettier": "prettier \"**/*.js\" \"**/*.ts\" --check --ignore-path .gitignore",
     "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
-    "lint": "npm run lint:eslint && npm run lint:prettier",
-    "format": "npm run format:eslint && npm run format:prettier",
+    "lint": "yarn lint:eslint && yarn lint:prettier",
+    "format": "yarn format:eslint && yarn format:prettier",
     "test": "jest",
     "build": "rimraf dist && rollup -c rollup.config.js && tsc --declaration --outDir dist --emitDeclarationOnly",
-    "prepublish": "build"
+    "prepublish": "yarn build"
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.3",
