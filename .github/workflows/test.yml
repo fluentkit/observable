@@ -9,3 +9,9 @@ jobs:
         run: yarn install
       - name: Run tests
         run: yarn test
+      - name: Upload coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage
+
