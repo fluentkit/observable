@@ -1,4 +1,5 @@
 import typescript from '@rollup/plugin-typescript';
+import buble from '@rollup/plugin-buble';
 import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
 
@@ -16,5 +17,5 @@ export default {
       sourcemap: true,
     },
   ],
-  plugins: [typescript(), terser()],
+  plugins: [typescript(), buble(), terser()],
 };
