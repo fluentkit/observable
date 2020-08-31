@@ -1,6 +1,6 @@
 export type ObservableKey = string | number | symbol;
 
-export type Index = {
+export type Observable = {
   [key in ObservableKey]: any;
 } & {
   $isObservable: boolean;
@@ -21,7 +21,7 @@ export const nextTick = (callback?: () => void): Promise<void> => {
   return callback ? tick.then(callback) : tick;
 };
 
-export const observable = (object: any): Index => {
+export const observable = (object: any): Observable => {
   const $watchers: Record<string, Function[]> = {};
   const $tracking: PropertyKey[][] = [];
   const $cached: Record<PropertyKey, unknown> = {};
@@ -68,11 +68,11 @@ export const observable = (object: any): Index => {
     return (
       value !== null &&
       typeof value === 'object' &&
-      (value as Index).$isObservable
+      (value as Observable).$isObservable
     );
   };
 
-  const handler: Index & ProxyHandler<Index> = {
+  const handler: Observable & ProxyHandler<Observable> = {
     $isObservable: true,
     get $isSettled() {
       return $notificationQueue._queue.length === 0;
@@ -176,7 +176,7 @@ export const observable = (object: any): Index => {
     set(target: any, propertyKey: PropertyKey, value: unknown) {
       const result = Reflect.set(target, propertyKey, value);
       if (_isObservable(value)) {
-        (value as Index).$watch((property: string | null) => {
+        (value as Observable).$watch((property: string | null) => {
           this.$notify(propertyKey);
           if (property) this.$notify(propertyKey.toString() + '.' + property);
         });
@@ -190,7 +190,7 @@ export const observable = (object: any): Index => {
       descriptor: PropertyDescriptor
     ) {
       if (descriptor.value && _isObservable(descriptor.value)) {
-        (descriptor.value as Index).$watch((property: string | null) => {
+        (descriptor.value as Observable).$watch((property: string | null) => {
           this.$notify(propertyKey);
           if (property) this.$notify(propertyKey.toString() + '.' + property);
         });
@@ -203,5 +203,5 @@ export const observable = (object: any): Index => {
       return Reflect.deleteProperty(target, propertyKey);
     },
   };
-  return new Proxy<Index>(object, handler);
+  return new Proxy<Observable>(object, handler);
 };
