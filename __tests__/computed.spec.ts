@@ -43,4 +43,38 @@ describe('reactivity/computed', () => {
     obj.computed;
     expect(getter).toHaveBeenCalledTimes(2);
   });
+
+  it('should trigger effect', async () => {
+    const obj = observable({
+      get computed(): number {
+        return this.foo;
+      },
+    });
+    let dummy;
+    obj.$effect(() => {
+      dummy = obj.computed;
+    });
+    expect(dummy).toBe(undefined);
+    obj.foo = 1;
+    await obj.$nextTick();
+    await obj.$nextTick();
+    expect(dummy).toBe(1);
+  });
+
+  it('should work when chained', () => {
+    const obj = observable({
+      foo: 0,
+      get c1() {
+        return this.foo;
+      },
+      get c2() {
+        return this.c1 + 1;
+      },
+    });
+    expect(obj.c2).toBe(1);
+    expect(obj.c1).toBe(0);
+    obj.foo++;
+    expect(obj.c2).toBe(2);
+    expect(obj.c1).toBe(1);
+  });
 });
