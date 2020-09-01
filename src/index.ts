@@ -43,7 +43,7 @@ export const observable = (object: any): Observable => {
   } = {
     stack: {},
     push(propertyKey: string, callback: Function): void {
-      this.stack[propertyKey] = this.stack[propertyKey] || [];
+      if (!this.stack[propertyKey]) this.stack[propertyKey] = [];
       this.stack[propertyKey].push(callback);
     },
     isQueued: false,
@@ -63,12 +63,15 @@ export const observable = (object: any): Observable => {
         const propertyKey = queue.shift();
         if (!propertyKey) return;
 
-        this.stack[propertyKey] = (this.stack[propertyKey] || []).filter(
-          watcher => watcher(propertyKey === '*' ? null : propertyKey) !== false
-        );
+        if (this.stack[propertyKey]) {
+          this.stack[propertyKey] = this.stack[propertyKey].filter(
+            watcher =>
+              watcher(propertyKey === '*' ? null : propertyKey) !== false
+          );
+        }
 
-        if (propertyKey !== '*') {
-          this.stack['*'] = (this.stack['*'] || []).filter(
+        if (propertyKey !== '*' && this.stack['*']) {
+          this.stack['*'] = this.stack['*'].filter(
             watcher => watcher(propertyKey) !== false
           );
         }
