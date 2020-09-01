@@ -22,6 +22,7 @@
     "format": "yarn format:eslint && yarn format:prettier",
     "test": "jest",
     "build": "rimraf dist && rollup -c rollup.config.js && tsc --declaration --outDir dist --emitDeclarationOnly",
+    "size": "yarn csc dist --include js",
     "prepublish": "yarn build"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "@types/jest": "^26.0.10",
     "@typescript-eslint/eslint-plugin": "^2.20.0",
     "@typescript-eslint/parser": "^2.20.0",
+    "compression-stats-cli": "^1.2.2",
     "concurrently": "^5.1.0",
     "deepmerge": "^3.2.0",
     "eslint": "^6.1.0",
