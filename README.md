@@ -28,6 +28,22 @@ const reactiveObj = observable({
 });
 ```
 
+### CDN Usage
+
+You can use a prebuilt copy of the package from the sources below:
+
+`https://unpkg.com/@fluentkit/observable`
+
+`https://cdn.jsdelivr.net/npm/@fluentkit/observable`
+
+In both case the observable function will be available on the global variable `FluentKit`:
+
+```javascript
+const obj = FluentKit.observable({});
+```
+
+## API
+
 ### $watch: (PropertyKey | PropertyKey[] | Function, callback?: Function): void
 
 To watch for data changes you can use the watch function:
