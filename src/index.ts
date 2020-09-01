@@ -116,7 +116,7 @@ export const observable = (object: any): Observable => {
     $track(callback: Function): PropertyKey[] {
       $tracking.push([]);
       callback();
-      return [...new Set($tracking.pop())];
+      return Array.from(new Set($tracking.pop()));
     },
     $effect(callback: Function): void {
       let deps = this.$track(() => callback());

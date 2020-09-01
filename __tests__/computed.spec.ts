@@ -10,6 +10,11 @@ describe('reactivity/computed', () => {
     expect(obj.computed).toBe(undefined);
     obj.foo = 1;
     expect(obj.computed).toBe(1);
+    for (let i = 0; i < 10; i++) {
+      obj.foo = i;
+      expect(obj.computed).toBe(i);
+    }
+    expect(obj.computed).toBe(9);
   });
 
   it('should compute lazily', () => {
