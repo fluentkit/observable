@@ -23,5 +23,5 @@ export default {
       sourcemap: true,
     },
   ],
-  plugins: [typescript(), buble(), terser()],
+  plugins: [typescript(), buble({ objectAssign: true }), terser()],
 };

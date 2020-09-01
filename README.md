@@ -8,7 +8,9 @@
 [![jsDelivr hits (npm)](https://img.shields.io/jsdelivr/npm/hm/@fluentkit/observable)](https://www.jsdelivr.com/package/npm/@fluentkit/observable)
 [![Unpkg](https://img.shields.io/badge/unpkg-CDN-blue)](https://unpkg.com/@fluentkit/observable)
 
-A lightweight < 3KB (minified), 1KB gzipped, zero dependency* object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.
+A lightweight 3KB (minified), 1KB gzipped, zero dependency* object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.
+
+Inspired by VueJs Reactivity.
 
 Watchers and effects are batched, de-duped and called asynchronously using promises for performance.
 
@@ -70,6 +72,11 @@ reactiveObj.$watch(['foo', 'bazzer.one'], (propertyName) => {
     // propertyName changed.
 });
 ```
+
+### $watchSync: (PropertyKey | PropertyKey[] | Function, callback?: Function): void
+
+Provides the same api as `$watch` but runs the callback function immediately.
+This method is used internally to clear cached computed values, it is exposed but most of your needs should be covered by `$watch`.
 
 ### $effect: (callback: () => {}): void
 

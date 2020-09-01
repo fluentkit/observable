@@ -11,8 +11,18 @@ export type Observable = {
     propertyKey: PropertyKey | PropertyKey[] | Function,
     callback?: Function
   ) => void;
+  $watchSync: (
+    propertyKey: PropertyKey | PropertyKey[] | Function,
+    callback?: Function
+  ) => void;
   $track: Function;
   $effect: Function;
+};
+
+type QueueCommon = {
+  stack: Record<string, Function[]>;
+  push: (propertyKey: string, callback: Function) => void;
+  callStack: (propertyKey: string) => void;
 };
 
 export const tick: Promise<void> = Promise.resolve();
@@ -29,23 +39,38 @@ const _isObservable = (value: unknown): boolean => {
   );
 };
 
+const queueCommon = (): QueueCommon => ({
+  stack: {},
+  push(propertyKey: string, callback: Function): void {
+    if (!this.stack[propertyKey]) this.stack[propertyKey] = [];
+    this.stack[propertyKey].push(callback);
+  },
+  callStack(propertyKey: string): void {
+    if (this.stack[propertyKey]) {
+      this.stack[propertyKey] = this.stack[propertyKey].filter(
+        watcher => watcher(propertyKey === '*' ? null : propertyKey) !== false
+      );
+    }
+
+    if (propertyKey !== '*' && this.stack['*']) {
+      this.stack['*'] = this.stack['*'].filter(
+        watcher => watcher(propertyKey) !== false
+      );
+    }
+  },
+});
+
 export const observable = (object: any): Observable => {
   const $tracking: Set<PropertyKey>[] = [];
   const $cached: Record<PropertyKey, unknown> = {};
 
-  const $watcherQueue: {
-    stack: Record<string, Function[]>;
-    push: (propertyKey: string, callback: Function) => void;
+  const $watcherQueue: QueueCommon & {
     isQueued: boolean;
     _queue: Set<string>;
     queue: (propertyKey: PropertyKey) => void;
     flush: () => void;
   } = {
-    stack: {},
-    push(propertyKey: string, callback: Function): void {
-      if (!this.stack[propertyKey]) this.stack[propertyKey] = [];
-      this.stack[propertyKey].push(callback);
-    },
+    ...queueCommon(),
     isQueued: false,
     _queue: new Set(),
     queue(propertyKey: PropertyKey): void {
@@ -62,26 +87,21 @@ export const observable = (object: any): Observable => {
       while (queue.length) {
         const propertyKey = queue.shift();
         if (!propertyKey) return;
-
-        if (this.stack[propertyKey]) {
-          this.stack[propertyKey] = this.stack[propertyKey].filter(
-            watcher =>
-              watcher(propertyKey === '*' ? null : propertyKey) !== false
-          );
-        }
-
-        if (propertyKey !== '*' && this.stack['*']) {
-          this.stack['*'] = this.stack['*'].filter(
-            watcher => watcher(propertyKey) !== false
-          );
-        }
+        this.callStack(propertyKey);
       }
     },
   };
 
-  const handler: Observable &
-    ProxyHandler<Observable> & { _cacheMap: Record<string, string[]> } = {
-    _cacheMap: {},
+  const $watcherSyncQueue: QueueCommon & {
+    flush: (propertyKey: PropertyKey) => void;
+  } = {
+    ...queueCommon(),
+    flush(propertyKey: PropertyKey): void {
+      this.callStack(propertyKey.toString());
+    },
+  };
+
+  const handler: Observable & ProxyHandler<Observable> = {
     $isObservable: true,
     get $isSettled() {
       return $watcherQueue._queue.size === 0;
@@ -89,12 +109,7 @@ export const observable = (object: any): Observable => {
     $nextTick: nextTick,
     $notify(propertyKey: PropertyKey): void {
       $watcherQueue.queue(propertyKey);
-      Object.keys(this._cacheMap).forEach(key => {
-        if (this._cacheMap[key].includes(propertyKey.toString())) {
-          delete $cached[key];
-          this.$notify(key);
-        }
-      });
+      $watcherSyncQueue.flush(propertyKey);
     },
     $watch(
       propertyKey: PropertyKey | PropertyKey[] | Function,
@@ -117,6 +132,27 @@ export const observable = (object: any): Observable => {
         $watcherQueue.push(propertyKey.toString(), callback as Function);
       }
     },
+    $watchSync(
+      propertyKey: PropertyKey | PropertyKey[] | Function,
+      callback?: Function
+    ) {
+      if (typeof propertyKey === 'function') {
+        callback = propertyKey;
+        propertyKey = '*';
+      }
+
+      if (Array.isArray(propertyKey) && propertyKey.length === 1)
+        propertyKey = propertyKey[0];
+
+      if (Array.isArray(propertyKey)) {
+        $watcherSyncQueue.push('*', (property: PropertyKey) => {
+          if ((propertyKey as PropertyKey[]).includes(property))
+            return (callback as Function)(property);
+        });
+      } else {
+        $watcherSyncQueue.push(propertyKey.toString(), callback as Function);
+      }
+    },
     $track(callback: Function): PropertyKey[] {
       $tracking.push(new Set<PropertyKey>());
       callback();
@@ -135,8 +171,13 @@ export const observable = (object: any): Observable => {
     $cache(propertyKey: PropertyKey, callback: Function): unknown {
       const key = propertyKey.toString();
       if ($cached.hasOwnProperty(key)) return $cached[key];
-      this._cacheMap[key] = this.$track(() => {
+      const deps = this.$track(() => {
         $cached[key] = callback();
+      });
+      this.$watchSync(deps, () => {
+        delete $cached[key];
+        this.$notify(propertyKey);
+        return false;
       });
       return $cached[key];
     },
