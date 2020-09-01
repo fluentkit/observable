@@ -1,6 +1,6 @@
 {
   "name": "@fluentkit/observable",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A lightweight object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.",
   "author": "FluentKit",
   "homepage": "https://github.com/fluentkit/observable/tree/master/#readme",
