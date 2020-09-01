@@ -104,6 +104,10 @@ export const observable = (object: any): Observable => {
         callback = propertyKey;
         propertyKey = '*';
       }
+
+      if (Array.isArray(propertyKey) && propertyKey.length === 1)
+        propertyKey = propertyKey[0];
+
       if (Array.isArray(propertyKey)) {
         $watcherQueue.push('*', (property: PropertyKey) => {
           if ((propertyKey as PropertyKey[]).includes(property))
