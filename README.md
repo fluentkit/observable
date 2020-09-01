@@ -1,8 +1,14 @@
 # @fluentkit/observable
 
-[![](https://data.jsdelivr.com/v1/package/npm/@fluentkit/observable/badge)](https://www.jsdelivr.com/package/npm/@fluentkit/observable)
+[![NPM Downloads](https://img.shields.io/npm/v/@fluentkit/observable)](https://www.npmjs.com/package/@fluentkit/observable)
+[![Bundlephobia](https://img.shields.io/bundlephobia/min/@fluentkit/observable)](https://bundlephobia.com/result?p=@fluentkit/observable)
+[![Issues](https://img.shields.io/github/issues/fluentkit/observable)](https://github.com/fluentkit/observable/issues)
+[![License](https://img.shields.io/npm/l/@fluentkit/observable)](https://github.com/fluentkit/observable/blob/master/LICENSE)
+[![NPM Downloads](https://img.shields.io/npm/dm/@fluentkit/observable)](https://www.npmjs.com/package/@fluentkit/observable)
+[![jsDelivr hits (npm)](https://img.shields.io/jsdelivr/npm/hm/@fluentkit/observable)](https://www.jsdelivr.com/package/npm/@fluentkit/observable)
+[![Unpkg](https://img.shields.io/badge/unpkg-CDN-blue)](https://unpkg.com/@fluentkit/observable)
 
-A lightweight 2.5KB (minified), 1KB gzipped, zero dependency* object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.
+A lightweight < 3KB (minified), 1KB gzipped, zero dependency* object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.
 
 Watchers and effects are batched, de-duped and called asynchronously using promises for performance.
 
