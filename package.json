@@ -3,12 +3,26 @@
   "version": "1.0.2",
   "description": "A lightweight object proxy for reactivity with dependency tracking, watchers, effects and cached object getters.",
   "author": "FluentKit",
+  "homepage": "https://github.com/fluentkit/observable/tree/master/#readme",
+  "repository": {
+    "type" : "git",
+    "url" : "git+https://github.com/fluentkit/observable.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fluentkit/observable/issues"
+  },
   "license": "MIT",
+  "keywords": [
+    "fluentkit",
+    "reactive",
+    "observable"
+  ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "unpkg": "dist/index.js",
   "jsdelivr": "dist/index.js",
+  "sideEffects": false,
   "files": [
     "dist"
   ],
@@ -21,7 +35,7 @@
     "lint": "yarn lint:eslint && yarn lint:prettier",
     "format": "yarn format:eslint && yarn format:prettier",
     "test": "jest",
-    "build": "rimraf dist && rollup -c rollup.config.js && tsc --declaration --outDir dist --emitDeclarationOnly",
+    "build": "rimraf dist && rollup -c rollup.config.js && tsc --declaration --outDir dist --emitDeclarationOnly && yarn size",
     "size": "yarn csc dist --include js",
     "prepublish": "yarn build"
   },
