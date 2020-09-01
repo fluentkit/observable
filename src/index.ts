@@ -89,8 +89,8 @@ export const observable = (object: any): Observable => {
     $nextTick: nextTick,
     $notify(propertyKey: PropertyKey): void {
       $watcherQueue.queue(propertyKey);
-      Object.entries(this._cacheMap).forEach(([key, dependencies]) => {
-        if (dependencies.includes(propertyKey.toString())) {
+      Object.keys(this._cacheMap).forEach(key => {
+        if (this._cacheMap[key].includes(propertyKey.toString())) {
           delete $cached[key];
           this.$notify(key);
         }
