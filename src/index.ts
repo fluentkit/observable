@@ -30,7 +30,7 @@ const _isObservable = (value: unknown): boolean => {
 };
 
 export const observable = (object: any): Observable => {
-  const $tracking: PropertyKey[][] = [];
+  const $tracking: Set<PropertyKey>[] = [];
   const $cached: Record<PropertyKey, unknown> = {};
 
   const $watcherQueue: {
@@ -118,9 +118,9 @@ export const observable = (object: any): Observable => {
       }
     },
     $track(callback: Function): PropertyKey[] {
-      $tracking.push([]);
+      $tracking.push(new Set<PropertyKey>());
       callback();
-      return Array.from(new Set($tracking.pop()));
+      return Array.from($tracking.pop() as Set<PropertyKey>);
     },
     $effect(callback: Function): void {
       let deps = this.$track(() => callback());
@@ -155,7 +155,7 @@ export const observable = (object: any): Observable => {
         return this[propertyKey.toString()];
 
       if ($tracking.length > 0)
-        $tracking[$tracking.length - 1].push(propertyKey);
+        $tracking[$tracking.length - 1].add(propertyKey);
 
       const descriptor = Reflect.getOwnPropertyDescriptor(target, propertyKey);
 
